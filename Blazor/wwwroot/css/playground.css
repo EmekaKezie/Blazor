@@ -1,0 +1,10 @@
+﻿body {
+    /*background-color:lightgray;*/
+}
+
+.code-section{
+    box-shadow:1px 1px 5px lightgray;
+    padding:1rem;
+    border:0px solid lightgray;
+    border-radius:5px;
+}

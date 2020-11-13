@@ -1,0 +1,169 @@
+﻿@page "/addmember"
+
+@using Blazor.Model
+@using Blazor.Data
+
+@using Blazored.LocalStorage
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@inject NavigationManager NavigationManager
+
+
+<div style="float:right;">
+    <span>@Firstname</span>
+    <a href="logout">Logout</a>
+</div>
+
+<h4>Create New Member</h4>
+
+<div class="p-3 my-3" style="box-shadow:0 0 1px gray; border-radius:5px;">
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm Model="@data" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+
+                <div class="form-group">
+                    <label for="firstname">Firstname</label>
+                    <InputText id="firstname" @bind-Value="@data.firstname" class="form-control" placeholder="Firstname" />
+                    <small class="text-danger"><ValidationMessage For="@(() => data.firstname)"/></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="surname">Surname</label>
+                    <InputText id="surname" @bind-Value="@data.surname" class="form-control" placeholder="Surname" />
+                    <small class="text-danger"><ValidationMessage For="@(() => data.surname)"/></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <InputText id="firstname" @bind-Value="@data.username" class="form-control" placeholder="Username" />
+                    <small class="text-danger"><ValidationMessage For="@(() => data.username)"/></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" @bind="@data.password" id="firstname" class="form-control" placeholder="Password" />
+                    <small class="text-danger"><ValidationMessage For="@(() => data.password)"/></small>
+                </div>
+
+                <div class="form-group">
+                    <span class="text-danger">@Error</span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" @onclick="ShowSpinner">Add Member <span class="@Spinner"></span></button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    //string Id;
+    //string Firstname;
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    try
+    //    {
+    //        await BrowserStorage();
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        NavigationManager.NavigateTo("playground");
+    //    }
+    //}
+
+    //private async Task BrowserStorage()
+    //{
+    //    await localStorage.SetItemAsync("id", Id);
+    //    Id = await localStorage.GetItemAsync<string>("id");
+
+    //    var userData = await UserData.GetUser(Id);
+    //    if (userData != null)
+    //    {
+    //        Firstname = userData.firstname;
+    //    }
+    //}
+
+    string Id;
+    string Firstname;
+
+    string Error;
+    string Spinner;
+
+    private UserCreate data = new UserCreate();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Id = await localStorage.GetItemAsync<string>("id");
+            if (!String.IsNullOrEmpty(Id))
+            {
+                var userData = await UserData.GetUser(Id);
+                if (userData != null)
+                {
+                    Firstname = userData.firstname;
+                }
+            }
+            else
+            {
+                NavigationManager.NavigateTo("playground");
+            }
+        }
+        catch (Exception)
+        {
+            //NavigationManager.NavigateTo("playground");
+        }
+
+
+    }
+
+
+    private async Task HandleValidSubmit()
+    {
+        var param = new UserCreate()
+        {
+            firstname = data.firstname,
+            surname = data.surname,
+            username = data.username,
+            password = data.password
+        };
+
+        bool res = await UserData.CreateUser(new UserCreate()
+        {
+            firstname = data.firstname,
+            surname = data.surname,
+            username = data.username,
+            password = data.password
+        });
+
+        if (res)
+        {
+            Error = "Successfully. Create another member";
+            Spinner = String.Empty;
+        }
+        else
+        {
+            Spinner = String.Empty;
+            Error = "Something went wrong. Please try again";
+        }
+    }
+
+    public void ShowSpinner()
+    {
+        if (!String.IsNullOrEmpty(data.username))
+        {
+            Spinner = "spinner-border spinner-border-sm";
+        }
+
+        //if(param != null)
+        //{
+        //    Spinner = "spinner-border spinner-border-sm";
+        //}
+    }
+}

@@ -1,0 +1,40 @@
+﻿@page "/"
+
+@using Blazored.LocalStorage
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+
+@inject NavigationManager NavigationManager
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+
+@code{
+    string Id;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Id = await localStorage.GetItemAsync<string>("id");
+            //await UpdateLocalStorage(Id);
+
+            if (!String.IsNullOrEmpty(Id))
+            {
+                NavigationManager.NavigateTo("member");
+            }
+            else
+            {
+                NavigationManager.NavigateTo("playground");
+            }
+        }
+        catch (Exception)
+        {
+            //NavigationManager.NavigateTo("playground");
+        }
+    }
+}

@@ -1,0 +1,132 @@
+﻿@page "/member"
+
+@using Blazor.Model
+@using Blazor.Data
+
+@using Blazored.LocalStorage
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+
+@inject NavigationManager NavigationManager
+
+<div style="float:right;">
+    <span>@Firstname</span>
+    <a href="logout">Logout</a>
+</div>
+
+<div class="py-3">
+    <a href="addmember" class="btn btn-primary">New Member</a>
+</div>
+
+<div>
+    @if (users != null)
+    {
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Firstname</th>
+                    <th>Surname</th>
+                    <th>Username</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            @foreach (var i in users)
+            {
+                <tr>
+                    <td>@i.firstname</td>
+                    <td>@i.surname</td>
+                    <td>@i.username</td>
+                    <td>@i.entry_date.ToString("MMM dd, yyyy")</td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        <div>No Users has been registered</div>
+    }
+
+</div>
+
+@code {
+
+    string Id;
+    string Firstname;
+    List<User> users = new List<User>();
+
+
+    //public async Task UpdateLocalStorage(string Id)
+    //{
+    //    try
+    //    {
+    //        await localStorage.SetItemAsync("id", Id);
+    //        Id = await localStorage.GetItemAsync<string>("id");
+    //    }
+    //    catch (Exception)
+    //    {
+    //        NavigationManager.NavigateTo("playground");
+    //    }
+
+    //}
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Id = await localStorage.GetItemAsync<string>("id");
+            //await UpdateLocalStorage(Id);
+
+            if (!String.IsNullOrEmpty(Id))
+            {
+                var userData = await UserData.GetUser(Id);
+                if (userData != null)
+                {
+                    Firstname = userData.firstname;
+                }
+
+                await GetAllUsers();
+            }
+            else
+            {
+                NavigationManager.NavigateTo("playground");
+            }
+        }
+        catch (Exception)
+        {
+            //NavigationManager.NavigateTo("playground");
+        }
+    }
+
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    try
+    //    {
+    //        await BrowserStorage();
+    //        await GetAllUsers();
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        NavigationManager.NavigateTo("playground");
+    //    }
+
+    //}
+
+
+    //private async Task BrowserStorage()
+    //{
+    //    Id = await localStorage.GetItemAsync<string>("id");
+
+    //    var userData = await UserData.GetUser(Id);
+    //    if (userData != null)
+    //    {
+    //        Firstname = userData.firstname;
+    //    }
+    //}
+
+
+    private async Task GetAllUsers()
+    {
+        users = await UserData.GetUsers();
+    }
+}

@@ -1,0 +1,121 @@
+﻿@page "/playground"
+
+@using Blazor.Shared
+@using Blazor.Model
+@using Blazor.Data
+
+@using Blazored.LocalStorage
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager NavigationManager
+
+
+<PlaygroundHeader></PlaygroundHeader>
+
+<h3>Playground</h3>
+
+<div class="code-section">
+    <div class="section-title">
+        Styling
+    </div>
+    <div class="section-body">
+        <div style="font-style:@style">This a text whose style i want to play with</div>
+    </div>
+    <div class="section-footer">
+        Styling
+    </div>
+</div>
+
+
+<div class="p-3 my-3" style="box-shadow:0 0 1px gray; border-radius:5px;">
+    <div class="row">
+        <div class="col-md-4">
+            <h4>Forms</h4>
+            <p></p>
+            <div>
+                <EditForm Model="@login" OnValidSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <InputText id="username" @bind-Value="@login.username" class="form-control" placeholder="Enter your Username" />
+                        <small class="text-danger"><ValidationMessage For="@(() => login.username)" /></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" @bind="@login.password" class="form-control" placeholder="Enter your Password" />
+                        <small class="text-danger"><ValidationMessage For="@(() => login.password)" /></small>
+                    </div>
+
+                    <div class="form-group">
+                        <span class="text-danger">@Error</span>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" @onclick="ShowSpinner">Login <span class="@Spinner"></span></button>
+                    </div>
+
+                </EditForm>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    string style = "italic";
+
+}
+
+
+@code{
+    //Forms
+
+    string Id;
+    string Error;
+    string Spinner;
+
+
+    private Login login = new Login();
+
+    private async Task HandleValidSubmit()
+    {
+        var param = new Login
+        {
+            username = login.username,
+            password = login.password
+        };
+
+        var res = await UserData.Login(param);
+
+        if (res != null)
+        {
+            Error = String.Empty;
+            Spinner = String.Empty;
+            Id = res.login_id;
+            await OnInitializeAsync(Id);
+            NavigationManager.NavigateTo("member");
+        }
+        else
+        {
+            Spinner = String.Empty;
+            Error = "Invalid Login";
+        }
+    }
+
+
+    public async Task OnInitializeAsync(string Id)
+    {
+        await localStorage.SetItemAsync("id", Id);
+        string id = await localStorage.GetItemAsync<string>("id");
+    }
+
+
+    public void ShowSpinner()
+    {
+        if (!String.IsNullOrEmpty(login.username))
+        {
+            Spinner = "spinner-border spinner-border-sm";
+        }
+    }
+}

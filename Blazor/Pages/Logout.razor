@@ -1,0 +1,22 @@
+﻿@page "/logout"
+
+
+@using Blazored.LocalStorage
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@inject NavigationManager NavigationManager
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await localStorage.ClearAsync();
+            NavigationManager.NavigateTo("playground");
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+}
